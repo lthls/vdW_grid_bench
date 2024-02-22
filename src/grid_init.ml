@@ -84,7 +84,7 @@ module Grid = struct
                (vdw.d_ij *. ((-2.0 *. p6) +. (p6 *. p6))) *)
             BA3.unsafe_set g.grid i j k
               (BA3.unsafe_get g.grid i j k +.
-               (vdw.d_ij *. ((-2.0 *. p6) +. (p6 *. p6))))
+               (vdw.d_ij *. (p6 *. (p6 -. 2.0))))
           done
         done
       done
