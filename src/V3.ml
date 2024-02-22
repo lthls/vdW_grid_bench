@@ -20,7 +20,9 @@ let dist2 u v =
   +. (* dz2 *)
   (u.z -. v.z) *.
   (u.z -. v.z)
+[@@inline]
 
 (* the one in library vector3 should be optimized *)
 let dist u v =
   sqrt (dist2 u v)
+[@@inline]
