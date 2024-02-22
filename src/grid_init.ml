@@ -37,7 +37,7 @@ module Grid = struct
     ny: int;
     nz: int;
     (* data *)
-    grid: (float, BA.float32_elt, BA.c_layout) BA3.t }
+    grid: (float, BA.float64_elt, BA.c_layout) BA3.t }
 
   let create step low high =
     let x_min, y_min, z_min = V3.to_triplet low  in
@@ -49,7 +49,7 @@ module Grid = struct
     let ny = int_of_float (ceil (dy /. step)) in
     let nz = int_of_float (ceil (dz /. step)) in
     Log.info "Grid.create: nx,ny,nz=%d,%d,%d" nx ny nz;
-    let grid = BA3.create BA.float32 BA.c_layout nx ny nz in
+    let grid = BA3.create BA.float64 BA.c_layout nx ny nz in
     (* init w/ 0s *)
     BA3.fill grid 0.0;
     { low; high; step; nx; ny; nz; grid }
