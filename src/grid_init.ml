@@ -37,7 +37,7 @@ module Grid = struct
     ny: int;
     nz: int;
     (* data *)
-    grid: (float, BA.float64_elt, BA.c_layout) BA3.t }
+    grid: (float, BA.float32_elt, BA.c_layout) BA3.t }
 
   let create step low high =
     let x_min, y_min, z_min = V3.to_triplet low  in
@@ -49,7 +49,7 @@ module Grid = struct
     let ny = int_of_float (ceil (dy /. step)) in
     let nz = int_of_float (ceil (dz /. step)) in
     Log.info "Grid.create: nx,ny,nz=%d,%d,%d" nx ny nz;
-    let grid = BA3.create BA.float64 BA.c_layout nx ny nz in
+    let grid = BA3.create BA.float32 BA.c_layout nx ny nz in
     (* init w/ 0s *)
     BA3.fill grid 0.0;
     { low; high; step; nx; ny; nz; grid }
@@ -74,6 +74,7 @@ module Grid = struct
         for k = 0 to g.nz - 1 do
           let z = z_min +. (float k) *. dx in
           let l_p = V3.make x y z in (* ligand atom position *)
+          let grid_i_j_k = ref (BA3.unsafe_get g.grid i j k) in
           for m = 0 to n - 1 do (* over all protein atoms *)
             let p_p, p_a = A.unsafe_get prot_atoms m in
             let r_ij = non_zero_dist (V3.dist l_p p_p) in
@@ -82,10 +83,11 @@ module Grid = struct
             (* g.grid.{i,j,k} <-
                g.grid.{i,j,k} +.
                (vdw.d_ij *. ((-2.0 *. p6) +. (p6 *. p6))) *)
-            BA3.unsafe_set g.grid i j k
-              (BA3.unsafe_get g.grid i j k +.
+            grid_i_j_k :=
+              (!grid_i_j_k +.
                (vdw.d_ij *. (p6 *. (p6 -. 2.0))))
-          done
+          done;
+          BA3.unsafe_set g.grid i j k !grid_i_j_k
         done
       done
     done;
